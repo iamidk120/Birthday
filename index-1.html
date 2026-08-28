@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Little Surprise For You 💌</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink:#ffc2d1;
+    --pink-deep:#ff8fab;
+    --pink-dark:#e05a7a;
+    --cream:#fff7f9;
+    --red:#c94c5b;
+    --green:#7bbf8a;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    height:100%;
+    font-family:'Fredoka', sans-serif;
+    background:var(--cream);
+    overflow:hidden;
+  }
+  #app{
+    position:relative;
+    width:100%;
+    height:100vh;
+    height:100dvh;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,143,171,.35), transparent 45%),
+      radial-gradient(circle at 80% 30%, rgba(255,143,171,.3), transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(255,143,171,.35), transparent 50%),
+      linear-gradient(160deg, #fff0f4, #ffe1ea);
+  }
+
+  /* floating decorations */
+  .float-deco{
+    position:absolute;
+    font-size:22px;
+    opacity:.55;
+    pointer-events:none;
+    animation:floaty 6s ease-in-out infinite;
+    user-select:none;
+  }
+  @keyframes floaty{
+    0%,100%{ transform:translateY(0) rotate(0deg); }
+    50%{ transform:translateY(-14px) rotate(8deg); }
+  }
+
+  .screen{
+    position:absolute;
+    inset:0;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:30px 20px;
+    opacity:0;
+    transition:opacity .5s ease;
+  }
+  .screen.active{
+    display:flex;
+    opacity:1;
+  }
+
+  h1,h2{
+    color:var(--red);
+    text-shadow:0 2px 0 rgba(255,255,255,.6);
+  }
+
+  .btn{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:17px;
+    color:#fff;
+    background:linear-gradient(180deg, #e06679, var(--red));
+    border:none;
+    padding:12px 34px;
+    border-radius:40px;
+    box-shadow:0 5px 0 #a63848, 0 8px 16px rgba(0,0,0,.15);
+    cursor:pointer;
+    letter-spacing:.5px;
+    transition:transform .12s ease;
+    text-decoration:underline;
+    text-underline-offset:4px;
+  }
+  .btn:active{
+    transform:translateY(4px);
+    box-shadow:0 1px 0 #a63848, 0 4px 8px rgba(0,0,0,.15);
+  }
+  .btn.ghost{
+    background:linear-gradient(180deg,#8fb08f,var(--green));
+    box-shadow:0 5px 0 #4f8a5f, 0 8px 16px rgba(0,0,0,.15);
+  }
+  .btn.ghost:active{ box-shadow:0 1px 0 #4f8a5f, 0 4px 8px rgba(0,0,0,.15); }
+
+  /* ---------- LOCK SCREEN ---------- */
+  #screen-lock{ flex-direction:row; padding:0; }
+  .lock-left, .lock-right{
+    flex:1;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+  .lock-left{ background:var(--cream); }
+  .lock-right{ background:linear-gradient(180deg, var(--pink), var(--pink-deep)); flex-direction:column; }
+
+  .photo-frame{
+    width:min(52vw, 230px);
+    height:min(52vw, 230px);
+    border-radius:50%;
+    background-size:cover;
+    background-position:center;
+    background-color:#ffd8e2;
+    border:6px solid #fff;
+    box-shadow:0 0 0 3px var(--pink-deep), inset 0 0 20px rgba(0,0,0,.08);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:54px;
+    position:relative;
+    z-index:2;
+  }
+  .heart-ring{
+    position:absolute;
+    inset:-16px;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:1;
+  }
+  .heart-ring span{
+    position:absolute;
+    font-size:16px;
+    top:50%; left:50%;
+    transform-origin:0 0;
+  }
+
+  .passcode-title{
+    color:#fff;
+    font-size:20px;
+    margin-bottom:16px;
+    text-shadow:0 2px 4px rgba(0,0,0,.15);
+  }
+  .passcode-dots{
+    display:flex;
+    gap:10px;
+    margin-bottom:22px;
+  }
+  .dot-box{
+    width:34px; height:34px;
+    border:2px solid #fff;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-size:20px;
+    background:rgba(255,255,255,.12);
+  }
+  .dot-box.filled{ background:#fff; color:var(--pink-dark); }
+  .shake{ animation:shakeit .45s; }
+  @keyframes shakeit{
+    10%,90%{ transform:translateX(-3px);}
+    20%,80%{ transform:translateX(6px);}
+    30%,50%,70%{ transform:translateX(-10px);}
+    40%,60%{ transform:translateX(10px);}
+  }
+
+  .keypad{
+    display:grid;
+    grid-template-columns:repeat(3, 54px);
+    gap:12px;
+  }
+  .key{
+    width:54px; height:54px;
+    border-radius:50%;
+    background:rgba(255,255,255,.9);
+    color:var(--pink-dark);
+    font-size:19px;
+    font-weight:600;
+    border:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow:0 3px 0 rgba(180,90,110,.4);
+  }
+  .key:active{ transform:translateY(2px); box-shadow:none; }
+
+  #unlockBtn{
+    margin-top:18px;
+    display:none;
+  }
+
+  /* ---------- generic message screens ---------- */
+  .chars{
+    font-size:70px;
+    margin:18px 0;
+    display:flex;
+    gap:4px;
+    align-items:flex-end;
+  }
+  .typewrite{
+    font-size:clamp(20px,5vw,30px);
+    min-height:1.4em;
+    font-weight:600;
+    color:var(--red);
+  }
+  .typewrite .cursor{
+    display:inline-block;
+    width:2px;
+    background:var(--red);
+    margin-left:2px;
+    animation:blink 1s step-end infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .btn-row{ display:flex; gap:22px; margin-top:26px; }
+
+  #noBtn.dodge{ position:relative; }
+
+  .subtext{
+    font-family:'Caveat', cursive;
+    font-size:26px;
+    color:var(--pink-dark);
+    margin-top:6px;
+  }
+
+  /* ---------- letter screen ---------- */
+  .letter-card{
+    background:#fffafb;
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,.12);
+    padding:30px 26px;
+    max-width:520px;
+    width:92%;
+    max-height:76vh;
+    overflow-y:auto;
+    position:relative;
+  }
+  .letter-card h2{ margin-bottom:14px; font-size:28px; }
+  .letter-card p{
+    font-family:'Caveat', cursive;
+    font-size:22px;
+    line-height:1.5;
+    color:#7a3b46;
+    text-align:left;
+  }
+  .sticker{
+    position:absolute;
+    font-size:34px;
+    opacity:.9;
+  }
+
+  .click-me{
+    position:fixed;
+    bottom:26px;
+    right:26px;
+    background:#fff;
+    border:2px dashed var(--pink-dark);
+    color:var(--pink-dark);
+    font-weight:600;
+    font-size:13px;
+    padding:10px 14px;
+    border-radius:50%;
+    width:64px; height:64px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    line-height:1.1;
+    cursor:pointer;
+    animation:pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.08); }
+  }
+
+  /* ---------- collage screen ---------- */
+  .collage{
+    position:relative;
+    width:min(80vw,320px);
+    height:min(80vw,320px);
+    margin:20px auto;
+  }
+  .heart-shape{
+    width:100%; height:100%;
+    clip-path:path('M160 300 C 20 210, 10 90, 90 45 C 140 15, 160 55, 160 80 C 160 55, 180 15, 230 45 C 310 90, 300 210, 160 300 Z');
+    background:linear-gradient(160deg,#ffd3de,#ff9fb6);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .heart-shape img{
+    width:100%; height:100%; object-fit:cover;
+    display:block;
+  }
+  .collage-date{
+    font-family:'Caveat', cursive;
+    font-size:24px;
+    color:var(--pink-dark);
+    margin-top:6px;
+  }
+
+  /* ---------- celebration ---------- */
+  #screen-celebrate h1{
+    font-size:clamp(38px,10vw,64px);
+    color:var(--red);
+    animation:pop .6s ease;
+  }
+  @keyframes pop{
+    0%{ transform:scale(.3); opacity:0; }
+    70%{ transform:scale(1.15); opacity:1; }
+    100%{ transform:scale(1); }
+  }
+  #confetti-canvas{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:50;
+  }
+
+  @media (max-width:640px){
+    #screen-lock{ flex-direction:column; }
+    .lock-left{ height:45%; }
+    .lock-right{ height:55%; }
+    .photo-frame{ width:150px; height:150px; font-size:36px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div id="app">
+
+  <!-- ============ SCREEN 1: LOCK / PASSCODE ============ -->
+  <section id="screen-lock" class="screen active">
+    <div class="lock-left">
+      <div style="position:relative;">
+        <div class="heart-ring" id="heartRing"></div>
+        <div class="photo-frame" id="lockPhoto">💗</div>
+      </div>
+    </div>
+    <div class="lock-right">
+      <div class="passcode-title">Enter a passcode</div>
+      <div class="passcode-dots" id="dotsRow">
+        <div class="dot-box"></div>
+        <div class="dot-box"></div>
+        <div class="dot-box"></div>
+        <div class="dot-box"></div>
+      </div>
+      <div class="keypad" id="keypad">
+        <button class="key" data-k="1">1</button>
+        <button class="key" data-k="2">2</button>
+        <button class="key" data-k="3">3</button>
+        <button class="key" data-k="4">4</button>
+        <button class="key" data-k="5">5</button>
+        <button class="key" data-k="6">6</button>
+        <button class="key" data-k="7">7</button>
+        <button class="key" data-k="8">8</button>
+        <button class="key" data-k="9">9</button>
+        <button class="key" data-k="*">⌫</button>
+        <button class="key" data-k="0">0</button>
+        <button class="key" data-k="#">✕</button>
+      </div>
+      <button class="btn" id="unlockBtn">UNLOCK</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 2: WRONG PASSCODE ============ -->
+  <section id="screen-wrong" class="screen">
+    <h1 style="font-size:clamp(26px,7vw,40px);">WRONG PASSCODE</h1>
+    <div class="chars">😿💔</div>
+    <button class="btn" id="tryAgainBtn">TRY AGAIN</button>
+  </section>
+
+  <!-- ============ SCREEN 3: ASK #1 ============ -->
+  <section id="screen-ask1" class="screen">
+    <div class="typewrite" id="ask1Text"><span class="cursor">&nbsp;</span></div>
+    <div class="chars">🐻💗🐱</div>
+    <div class="btn-row">
+      <button class="btn" id="yes1Btn">YES</button>
+      <button class="btn ghost" id="no1Btn">NO</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 4: WHY NO ============ -->
+  <section id="screen-no" class="screen">
+    <h1 style="font-size:clamp(24px,6.5vw,34px);">Why did u click no!? 😾</h1>
+    <div class="chars">🙀🐾</div>
+    <button class="btn" id="tryAgain2Btn">TRY AGAIN</button>
+  </section>
+
+  <!-- ============ SCREEN 5: HAPPY BIRTHDAY ============ -->
+  <section id="screen-birthday" class="screen">
+    <h1 style="font-size:clamp(30px,8vw,50px);">HAPPY BIRTHDAY!</h1>
+    <div class="chars">🐹🎂🐱</div>
+    <div class="subtext">I am ur gift 🎁</div>
+    <div class="click-me" id="toWishBtn">CLICK<br>ME</div>
+  </section>
+
+  <!-- ============ SCREEN 6: WISH LETTER ============ -->
+  <section id="screen-wish" class="screen">
+    <div class="letter-card">
+      <span class="sticker" style="top:-14px; left:-14px;">📷</span>
+      <span class="sticker" style="top:-10px; right:-10px;">💐</span>
+      <span class="sticker" style="bottom:-14px; left:-10px;">🍒</span>
+      <h2>MY WISH FOR U</h2>
+      <p id="wishBody"></p>
+    </div>
+    <div class="click-me" id="toHugBtn">CLICK<br>ME</div>
+  </section>
+
+  <!-- ============ SCREEN 7: VIRTUAL HUG ============ -->
+  <section id="screen-hug" class="screen">
+    <h2>Virtual hug for ya!</h2>
+    <div class="chars">🫂</div>
+    <h1 style="font-size:clamp(28px,7vw,42px);">I MISS YOU</h1>
+    <div class="click-me" id="toFinalBtn">CLICK<br>ME</div>
+  </section>
+
+  <!-- ============ SCREEN 8: WILL YOU BE MINE ============ -->
+  <section id="screen-final" class="screen">
+    <h1 style="font-size:clamp(26px,7vw,38px);">Will you be mine?</h1>
+    <div class="collage">
+      <div class="heart-shape" id="collageHeart">
+        <img id="collageImg" src="" alt="us" style="display:none;">
+        <span id="collagePlaceholder" style="font-size:60px;">💞</span>
+      </div>
+    </div>
+    <div class="collage-date" id="collageDate"></div>
+    <div class="btn-row">
+      <button class="btn" id="yesFinalBtn">YES</button>
+      <button class="btn ghost" id="noFinalBtn">NO</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 9: CELEBRATION ============ -->
+  <section id="screen-celebrate" class="screen">
+    <h1 id="celebrateText">YESSSSSS!!! 🎉💗</h1>
+    <div class="chars">🥳💖🎉</div>
+    <div class="subtext">forever & always 💌</div>
+  </section>
+
+</div>
+
+<script>
+/* =========================================================
+   CUSTOMIZE ME — everything you'd want to change lives here.
+   ========================================================= */
+const CONFIG = {
+  passcode: "0620",              // 4-digit passcode the recipient must enter
+  recipientName: "You",          // shown in the "I made something special for ___" line
+  lockPhotoUrl: "",              // URL/path to a photo for the lock-screen frame (leave "" to keep the emoji heart)
+  collagePhotoUrl: "",           // URL/path to a couple photo for the "Will you be mine?" heart (leave "" for emoji)
+  specialDate: "19.06.2026",     // any date/text you want under the final heart
+  wishMessage: [
+    "Happiest bday baby 🎂💗",
+    "I wish you all the happiness and success in life.",
+    "May you always be the happiest person, and keep the people around you the happiest too.",
+    "Hope this year brings you more joy and everything you've been praying for.",
+    "You are the most beautiful part of my life.",
+    "You are my comfort person.",
+    "Thank you for staying in my life, understanding me, and always listening to me.",
+    "Thank you for all the effort, love, and care you've shown.",
+    "Once again, happiest birthday 💗",
+    "May we celebrate all our birthdays together.",
+    "Forever yours 💌"
+  ]
+};
+/* ========================================================= */
+
+// apply config
+document.getElementById('ask1Text').dataset.full =
+  `I made something special for ${CONFIG.recipientName} 💌`;
+document.getElementById('wishBody').innerHTML =
+  CONFIG.wishMessage.join('<br><br>');
+document.getElementById('collageDate').textContent = CONFIG.specialDate;
+
+if (CONFIG.lockPhotoUrl) {
+  const lp = document.getElementById('lockPhoto');
+  lp.style.backgroundImage = `url('${CONFIG.lockPhotoUrl}')`;
+  lp.textContent = '';
+}
+if (CONFIG.collagePhotoUrl) {
+  document.getElementById('collageImg').src = CONFIG.collagePhotoUrl;
+  document.getElementById('collageImg').style.display = 'block';
+  document.getElementById('collagePlaceholder').style.display = 'none';
+}
+
+// scatter little hearts/stars around the lock photo
+(function scatterRing(){
+  const ring = document.getElementById('heartRing');
+  const icons = ['💗','⭐','✨','💕','⭐'];
+  const count = 14;
+  for(let i=0;i<count;i++){
+    const s = document.createElement('span');
+    s.textContent = icons[i % icons.length];
+    const angle = (i / count) * 2 * Math.PI;
+    const r = 130;
+    s.style.left = `calc(50% + ${Math.cos(angle)*r}px)`;
+    s.style.top = `calc(50% + ${Math.sin(angle)*r}px)`;
+    s.style.transform = 'translate(-50%,-50%)';
+    ring.appendChild(s);
+  }
+})();
+
+// floating background decorations
+(function floatDecor(){
+  const app = document.getElementById('app');
+  const icons = ['💗','⭐','✨','🩷'];
+  for(let i=0;i<10;i++){
+    const d = document.createElement('div');
+    d.className = 'float-deco';
+    d.textContent = icons[i % icons.length];
+    d.style.left = Math.random()*94 + '%';
+    d.style.top = Math.random()*94 + '%';
+    d.style.animationDelay = (Math.random()*4) + 's';
+    d.style.fontSize = (14 + Math.random()*14) + 'px';
+    app.appendChild(d);
+  }
+})();
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ---------------- passcode logic ---------------- */
+let entered = '';
+const dotsRow = document.getElementById('dotsRow');
+const unlockBtn = document.getElementById('unlockBtn');
+
+function renderDots(){
+  const boxes = dotsRow.querySelectorAll('.dot-box');
+  boxes.forEach((b,i)=>{
+    if(i < entered.length){ b.classList.add('filled'); b.textContent = '●'; }
+    else { b.classList.remove('filled'); b.textContent=''; }
+  });
+}
+
+document.getElementById('keypad').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.key');
+  if(!btn) return;
+  const k = btn.dataset.k;
+  if(k === '*'){ entered = entered.slice(0,-1); renderDots(); return; }
+  if(k === '#'){ entered = ''; renderDots(); unlockBtn.style.display='none'; return; }
+  if(entered.length >= 4) return;
+  entered += k;
+  renderDots();
+  if(entered.length === 4){
+    if(entered === CONFIG.passcode){
+      unlockBtn.style.display = 'inline-block';
+    } else {
+      dotsRow.classList.add('shake');
+      setTimeout(()=>{
+        dotsRow.classList.remove('shake');
+        showScreen('screen-wrong');
+      }, 450);
+    }
+  }
+});
+
+document.getElementById('tryAgainBtn').addEventListener('click', ()=>{
+  entered = '';
+  renderDots();
+  unlockBtn.style.display='none';
+  showScreen('screen-lock');
+});
+
+unlockBtn.addEventListener('click', ()=>{
+  showScreen('screen-ask1');
+  typeWriter(document.getElementById('ask1Text'));
+});
+
+/* ---------------- typewriter ---------------- */
+function typeWriter(el){
+  const full = el.dataset.full || '';
+  el.innerHTML = '<span class="cursor">&nbsp;</span>';
+  let i = 0;
+  const timer = setInterval(()=>{
+    i++;
+    el.innerHTML = full.slice(0,i) + '<span class="cursor">&nbsp;</span>';
+    if(i >= full.length) clearInterval(timer);
+  }, 45);
+}
+
+/* ---------------- ask1 -> birthday / no ---------------- */
+document.getElementById('yes1Btn').addEventListener('click', ()=>{
+  showScreen('screen-birthday');
+});
+document.getElementById('no1Btn').addEventListener('click', ()=>{
+  showScreen('screen-no');
+});
+document.getElementById('tryAgain2Btn').addEventListener('click', ()=>{
+  showScreen('screen-ask1');
+  typeWriter(document.getElementById('ask1Text'));
+});
+
+/* ---------------- chain onward ---------------- */
+document.getElementById('toWishBtn').addEventListener('click', ()=> showScreen('screen-wish'));
+document.getElementById('toHugBtn').addEventListener('click', ()=> showScreen('screen-hug'));
+document.getElementById('toFinalBtn').addEventListener('click', ()=> showScreen('screen-final'));
+
+/* ---------------- final YES/NO ---------------- */
+const noFinalBtn = document.getElementById('noFinalBtn');
+let dodgeCount = 0;
+noFinalBtn.addEventListener('mouseenter', dodge);
+noFinalBtn.addEventListener('click', (e)=>{
+  e.preventDefault();
+  dodge();
+});
+function dodge(){
+  dodgeCount++;
+  if(dodgeCount > 12) return; // give up eventually so it never gets truly stuck
+  const maxX = Math.max(window.innerWidth - 160, 40);
+  const maxY = Math.max(window.innerHeight - 260, 120);
+  const x = Math.random()*maxX;
+  const y = Math.random()*maxY;
+  noFinalBtn.style.position='fixed';
+  noFinalBtn.style.left = x+'px';
+  noFinalBtn.style.top = y+'px';
+}
+
+document.getElementById('yesFinalBtn').addEventListener('click', ()=>{
+  showScreen('screen-celebrate');
+  launchConfetti();
+});
+
+/* ---------------- confetti ---------------- */
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function launchConfetti(){
+  const colors = ['#ff8fab','#ffc2d1','#e05a7a','#ffe1ea','#ffffff'];
+  const pieces = [];
+  const count = 160;
+  for(let i=0;i<count;i++){
+    pieces.push({
+      x: Math.random()*canvas.width,
+      y: -20 - Math.random()*canvas.height,
+      w: 6 + Math.random()*6,
+      h: 8 + Math.random()*10,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      speedY: 2 + Math.random()*3,
+      speedX: (Math.random()-0.5)*2,
+      rot: Math.random()*360,
+      rotSpeed: (Math.random()-0.5)*10,
+      shape: Math.random() > 0.6 ? 'heart' : 'rect'
+    });
+  }
+  let frames = 0;
+  const maxFrames = 420;
+  function drawHeart(p){
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot * Math.PI/180);
+    ctx.fillStyle = p.color;
+    ctx.font = (p.w*2) + 'px sans-serif';
+    ctx.fillText('❤', -p.w/2, p.h/2);
+    ctx.restore();
+  }
+  function frame(){
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    pieces.forEach(p=>{
+      p.y += p.speedY;
+      p.x += p.speedX;
+      p.rot += p.rotSpeed;
+      if(p.shape === 'heart'){
+        drawHeart(p);
+      } else {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot * Math.PI/180);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+        ctx.restore();
+      }
+      if(p.y > canvas.height + 20){
+        p.y = -20;
+        p.x = Math.random()*canvas.width;
+      }
+    });
+    frames++;
+    if(frames < maxFrames){
+      requestAnimationFrame(frame);
+    } else {
+      ctx.clearRect(0,0,canvas.width, canvas.height);
+    }
+  }
+  frame();
+}
+</script>
+</body>
+</html>
